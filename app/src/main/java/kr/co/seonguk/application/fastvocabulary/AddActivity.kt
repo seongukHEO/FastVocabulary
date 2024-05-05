@@ -3,12 +3,14 @@ package kr.co.seonguk.application.fastvocabulary
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.view.children
 import com.google.android.material.chip.Chip
 import kr.co.seonguk.application.fastvocabulary.databinding.ActivityAddBinding
 
 class AddActivity : AppCompatActivity() {
 
     lateinit var binding:ActivityAddBinding
+    private var originWord:Word? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddBinding.inflate(layoutInflater)
@@ -25,6 +27,14 @@ class AddActivity : AppCompatActivity() {
             types.forEach {
                 addView(createChip(it))
             }
+        }
+
+        originWord = intent.getParcelableExtra<Word>("updatedWord")
+        originWord?.let { word ->
+            binding.textInputEditText.setText(word.text)
+            binding.meanTextInputEditText.setText(word.mean)
+            val selectChip = binding.typeChipGroup.children.firstOrNull { (it as Chip).text == word.type } as? Chip
+            selectChip?.isChecked = true
         }
     }
 
@@ -58,6 +68,8 @@ class AddActivity : AppCompatActivity() {
                 runOnUiThread {
                     Toast.makeText(this@AddActivity, "저장완료", Toast.LENGTH_SHORT).show()
                 }
+                val intent = intent.putExtra("isUpdated", true)
+                setResult(RESULT_OK, intent)
                 finish()
             }.start()
         }
